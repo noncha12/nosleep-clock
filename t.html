@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>คุณยังไม่นอนมานานแค่ไหน?</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom, #0f2027, #203a43, #2c5364);
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 30px 20px;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .card {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 15px;
+      padding: 25px 20px;
+      width: 100%;
+      max-width: 450px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      margin-bottom: 20px;
+    }
+
+    .card h2 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    input[type="date"],
+    input[type="time"] {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0 15px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      background-color: #ffffff;
+      color: #000000;
+    }
+
+    #currentDateTime {
+      font-size: 20px;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    #result {
+      font-size: 22px;
+      font-weight: bold;
+      margin-top: 20px;
+      color: #00ffcc;
+      text-align: center;
+    }
+
+    .digital-clock {
+      font-size: 22px;
+      font-weight: bold;
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 10px 15px;
+      border-radius: 10px;
+      text-align: center;
+      min-width: 110px;
+    }
+
+    .time-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .share-buttons {
+      margin-top: 25px;
+      text-align: center;
+    }
+
+    .share-buttons button,
+    .share-buttons a button {
+      background-color: #00c853;
+      color: white;
+      font-size: 16px;
+      padding: 10px 15px;
+      margin: 5px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .share-buttons button:hover {
+      background-color: #00e676;
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 24px;
+      }
+
+      .card {
+        padding: 20px 15px;
+      }
+
+      #result {
+        font-size: 20px;
+      }
+
+      .digital-clock {
+        font-size: 18px;
+        min-width: 90px;
+        padding: 8px 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>🕒 คุณยังไม่นอนมานานแค่ไหน?</h1>
+
+  <div class="card">
+    <h2>วันที่คุณตื่น และเวลาที่คุณตื่น</h2>
+    <input type="date" id="wakeDate">
+    <input type="time" id="wakeTime">
+  </div>
+
+  <div class="card">
+    <div class="time-row">
+      <div>
+        <h2>เวลาปัจจุบัน</h2>
+        <div id="currentDateTime">--:-- --/--/----</div>
+      </div>
+      <div class="digital-clock" id="digitalClock">--:--:--</div>
+    </div>
+  </div>
+
+  <div id="result">คุณยังไม่ได้นอนเป็นเวลา ...........(วัน/ชั่วโมง/นาที)</div>
+
+  
+    </a>
+  </div>
+
+  <script>
+    function updateCurrentDateTime() {
+      const now = new Date();
+
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const year = now.getFullYear();
+
+      document.getElementById('currentDateTime').textContent =
+        `${hours}:${minutes} - ${day}/${month}/${year}`;
+
+      document.getElementById('digitalClock').textContent =
+        `${hours}:${minutes}:${seconds}`;
+
+      calculateTimeDifference();
+    }
+
+    function calculateTimeDifference() {
+      const wakeDate = document.getElementById('wakeDate').value;
+      const wakeTime = document.getElementById('wakeTime').value;
+      const result = document.getElementById('result');
+
+      if (!wakeDate || !wakeTime) {
+        result.textContent = "กรุณาเลือกวันและเวลาที่คุณตื่น";
+        return;
+      }
+
+      const wakeDateTime = new Date(`${wakeDate}T${wakeTime}`);
+      const now = new Date();
+
+      let diffMs = now - wakeDateTime;
+      if (diffMs < 0) {
+        result.textContent = "คุณเลือกเวลาตื่นเป็นอนาคต!";
+        return;
+      }
+
+      const diffMinutes = Math.floor(diffMs / 1000 / 60);
+      const days = Math.floor(diffMinutes / (60 * 24));
+      const hours = Math.floor((diffMinutes % (60 * 24)) / 60);
+      const minutes = diffMinutes % 60;
+
+      const message = `คุณยังไม่ได้นอนเป็นเวลา <span style="color: red; text-decoration: underline;">${days}</span> วัน ${hours} ชั่วโมง ${minutes} นาที`;
+      result.innerHTML = `
+  คุณยังไม่ได้นอนเป็นเวลา<br>
+  <span style="color: white; text-decoration: underline; font-size: 24px;">${days}</span> วัน<br>
+  <span style="font-size: 20px;">${hours}</span> ชั่วโมง 
+  <span style="font-size: 20px;">${minutes}</span> นาที
+`;
+
+
+      updateLineShare(`คุณยังไม่ได้นอนมาแล้ว ${days} วัน ${hours} ชั่วโมง ${minutes} นาที`);
+    }
+
+    function copyResult() {
+      const text = document.getElementById('result').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        alert('คัดลอกข้อความแล้ว!');
+      });
+    }
+    
+    function updateLineShare(text) {
+      const url = "https://social-plugins.line.me/lineit/share?text=" + encodeURIComponent(text);
+      document.getElementById('lineShareBtn').href = url;
+    }
+
+    function setDefaultDateTime() {
+      const now = new Date();
+      document.getElementById('wakeDate').value = now.toISOString().split("T")[0];
+      document.getElementById('wakeTime').value = now.toTimeString().slice(0, 5);
+    }
+
+    window.onload = function () {
+      setDefaultDateTime();
+      updateCurrentDateTime();
+      setInterval(updateCurrentDateTime, 1000);
+    };
+  </script>
+</body>
+</html>
