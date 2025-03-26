@@ -65,6 +65,8 @@
       margin-top: 20px;
       color: #00ffcc;
       text-align: center;
+      line-height: 1.6;
+      white-space: pre-line;
     }
 
     .digital-clock {
@@ -146,7 +148,10 @@
 
   <div id="result">คุณยังไม่ได้นอนเป็นเวลา ...........(วัน/ชั่วโมง/นาที)</div>
 
-  
+  <div class="share-buttons">
+    <button onclick="copyResult()">📋 คัดลอกข้อความ</button>
+    <a id="lineShareBtn" href="#" target="_blank">
+      <button>🟢 แชร์ผ่าน LINE</button>
     </a>
   </div>
 
@@ -184,26 +189,24 @@
       const now = new Date();
 
       let diffMs = now - wakeDateTime;
-      if (diffMs < 0) {
-        result.textContent = "คุณเลือกเวลาตื่นเป็นอนาคต!";
-        return;
-      }
-
-      const diffMinutes = Math.floor(diffMs / 1000 / 60);
+      const diffMinutes = Math.abs(Math.floor(diffMs / 1000 / 60));
       const days = Math.floor(diffMinutes / (60 * 24));
       const hours = Math.floor((diffMinutes % (60 * 24)) / 60);
       const minutes = diffMinutes % 60;
 
-      const message = `คุณยังไม่ได้นอนเป็นเวลา <span style="color: red; text-decoration: underline;">${days}</span> วัน ${hours} ชั่วโมง ${minutes} นาที`;
-      result.innerHTML = `
-  คุณยังไม่ได้นอนเป็นเวลา<br>
-  <span style="color: white; text-decoration: underline; font-size: 24px;">${days}</span> วัน<br>
-  <span style="font-size: 20px;">${hours}</span> ชั่วโมง 
-  <span style="font-size: 20px;">${minutes}</span> นาที
-`;
-
-
-      updateLineShare(`คุณยังไม่ได้นอนมาแล้ว ${days} วัน ${hours} ชั่วโมง ${minutes} นาที`);
+      if (diffMs >= 0) {
+        result.innerHTML = `คุณยังไม่ได้นอนเป็นเวลา<br>
+          <span style="color: red; text-decoration: underline; font-size: 24px;">${days}</span> วัน<br>
+          <span style="font-size: 20px;">${hours}</span> ชั่วโมง 
+          <span style="font-size: 20px;">${minutes}</span> นาที`;
+        updateLineShare(`คุณยังไม่ได้นอนมาแล้ว ${days} วัน ${hours} ชั่วโมง ${minutes} นาที`);
+      } else {
+        result.innerHTML = `คุณจะตื่นในอีก<br>
+          <span style="color: orange; text-decoration: underline; font-size: 24px;">${days}</span> วัน<br>
+          <span style="font-size: 20px;">${hours}</span> ชั่วโมง 
+          <span style="font-size: 20px;">${minutes}</span> นาที`;
+        updateLineShare(`คุณจะตื่นในอีก ${days} วัน ${hours} ชั่วโมง ${minutes} นาที`);
+      }
     }
 
     function copyResult() {
@@ -212,7 +215,7 @@
         alert('คัดลอกข้อความแล้ว!');
       });
     }
-    
+
     function updateLineShare(text) {
       const url = "https://social-plugins.line.me/lineit/share?text=" + encodeURIComponent(text);
       document.getElementById('lineShareBtn').href = url;
